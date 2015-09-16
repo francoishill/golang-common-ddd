@@ -1,7 +1,7 @@
 # golang-common-ddd
 Common interfaces (and implementations) for usage in Domain Driven Design (DDD) with golang web API's.
 
-## TODO
+## Roadmap
 - ~~Add basic `EncryptionService`~~
 - ~~Add basic `ErrorsService`~~
 - ~~Add basic `HttpRenderHelperService`~~
