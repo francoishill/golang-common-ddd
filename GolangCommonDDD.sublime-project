@@ -1,0 +1,12 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"GolangCommonDDD.sublime-project"
+			],
+			"path": "."
+		}
+	]
+}
