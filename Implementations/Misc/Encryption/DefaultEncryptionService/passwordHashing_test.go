@@ -1,4 +1,4 @@
-package DefaultEncryption
+package DefaultEncryptionService
 
 import (
 	"bytes"

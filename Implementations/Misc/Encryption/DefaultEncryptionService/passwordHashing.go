@@ -1,4 +1,4 @@
-package DefaultEncryption
+package DefaultEncryptionService
 
 //Code obtained from https://trihackeat.wordpress.com/2014/10/11/758/
 
