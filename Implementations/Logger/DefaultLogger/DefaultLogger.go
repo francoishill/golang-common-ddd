@@ -48,13 +48,13 @@ func (l *logger) Critical(msg string, params ...interface{}) {
 func (l *logger) Error(msg string, params ...interface{}) {
 	l.logger.Error(l.combineParams(msg, params...))
 }
-func (l *logger) Warning(msg string, params ...interface{}) {
+func (l *logger) Warn(msg string, params ...interface{}) {
 	l.logger.Warn(l.combineParams(msg, params...))
 }
 func (l *logger) Notice(msg string, params ...interface{}) {
 	l.logger.Info(l.combineParams(msg, params...))
 }
-func (l *logger) Informational(msg string, params ...interface{}) {
+func (l *logger) Info(msg string, params ...interface{}) {
 	l.logger.Info(l.combineParams(msg, params...))
 }
 func (l *logger) Debug(msg string, params ...interface{}) {

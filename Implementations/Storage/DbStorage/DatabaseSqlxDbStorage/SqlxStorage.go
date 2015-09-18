@@ -24,7 +24,7 @@ func (s *storage) Migrate() {
 
 	numMigrationsApplied, err := migrate.Exec(s.db.DB, s.db.DriverName(), migrations, migrate.Up)
 	CheckError(err)
-	s.logger.Informational("Applied %d migrations", numMigrationsApplied)
+	s.logger.Info("Applied %d migrations", numMigrationsApplied)
 }
 
 func (s *storage) BeginTransaction() (DbStorageTransaction, error) {
