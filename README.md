@@ -8,4 +8,5 @@ Common interfaces (and implementations) for usage in Domain Driven Design (DDD) 
 - ~~Add basic `HttpRequestHelperService`~~
 - ~~Add `Logger`~~
 - ~~Add `Storage` with a default implementation of `DatabaseSqlx`~~
+- ~~Add `SettingsWithWatcher`~~
 - [PARTIALLY DONE] Add `AuthenticationService` (this must be simple and easy to use)
