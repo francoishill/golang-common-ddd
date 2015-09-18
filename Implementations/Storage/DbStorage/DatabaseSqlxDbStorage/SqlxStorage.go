@@ -6,25 +6,22 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rubenv/sql-migrate"
 
-	. "github.com/francoishill/golang-common-ddd/Interface/Logger"
 	. "github.com/francoishill/golang-common-ddd/Interface/Storage/DbStorage"
 )
 
 type storage struct {
 	db            *sqlx.DB
 	migrationPath string
-
-	logger Logger
 }
 
-func (s *storage) Migrate() {
+func (s *storage) Migrate() (numMigrationsApplied int) {
 	migrations := &migrate.FileMigrationSource{
 		Dir: s.migrationPath,
 	}
 
 	numMigrationsApplied, err := migrate.Exec(s.db.DB, s.db.DriverName(), migrations, migrate.Up)
 	CheckError(err)
-	s.logger.Info("Applied %d migrations", numMigrationsApplied)
+	return numMigrationsApplied
 }
 
 func (s *storage) BeginTransaction() (DbStorageTransaction, error) {
@@ -70,10 +67,9 @@ func (s *storage) IsNoRowsError(err error) bool {
 	return err == sql.ErrNoRows
 }
 
-func New(logger Logger, driverName, dataSourceName, migrationPath string) DbStorage {
+func New(driverName, dataSourceName, migrationPath string) DbStorage {
 	return &storage{
 		sqlx.MustConnect(driverName, dataSourceName),
 		migrationPath,
-		logger,
 	}
 }

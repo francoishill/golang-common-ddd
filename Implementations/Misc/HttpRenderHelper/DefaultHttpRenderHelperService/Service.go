@@ -15,11 +15,11 @@ func (s *service) RenderJson(w http.ResponseWriter, data interface{}) {
 	s.renderer.JSON(w, http.StatusOK, data)
 }
 
-func New() HttpRenderHelperService {
+func New(isDevelopment, indentJSON bool, templateExtensions []string) HttpRenderHelperService {
 	tmpRenderer := render.New(render.Options{
-		IndentJSON:    true,
-		Extensions:    []string{".gohtml", ".gotmpl"},
-		IsDevelopment: true,
+		IsDevelopment: isDevelopment,
+		IndentJSON:    indentJSON,
+		Extensions:    templateExtensions,
 	})
 	return &service{
 		tmpRenderer,

@@ -1,7 +1,7 @@
 package DbStorage
 
 type DbStorage interface {
-	Migrate()
+	Migrate() (numMigrationsApplied int)
 
 	BeginTransaction() (DbStorageTransaction, error)
 	MustBeginTransaction() DbStorageTransaction
