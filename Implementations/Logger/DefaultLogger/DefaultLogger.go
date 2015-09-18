@@ -73,7 +73,7 @@ func New(logFileName, prefix string, isDevMode bool) Logger {
 	l := golog.Logger()
 
 	if isDevMode {
-		l.SetLevel(levels.TRACE)
+		l.SetLevel(levels.DEBUG)
 	} else {
 		l.SetLevel(levels.INFO)
 	}
