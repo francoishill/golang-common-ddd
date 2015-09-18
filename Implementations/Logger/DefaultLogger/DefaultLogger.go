@@ -37,28 +37,28 @@ func (l *logger) combineParams(msg string, params ...interface{}) []interface{} 
 }
 
 func (l *logger) Emergency(msg string, params ...interface{}) {
-	l.logger.Fatal(l.combineParams(msg, params...))
+	l.logger.Fatal(l.combineParams(msg, params...)...)
 }
 func (l *logger) Alert(msg string, params ...interface{}) {
-	l.logger.Error(l.combineParams(msg, params...))
+	l.logger.Error(l.combineParams(msg, params...)...)
 }
 func (l *logger) Critical(msg string, params ...interface{}) {
-	l.logger.Error(l.combineParams(msg, params...))
+	l.logger.Error(l.combineParams(msg, params...)...)
 }
 func (l *logger) Error(msg string, params ...interface{}) {
-	l.logger.Error(l.combineParams(msg, params...))
+	l.logger.Error(l.combineParams(msg, params...)...)
 }
 func (l *logger) Warn(msg string, params ...interface{}) {
-	l.logger.Warn(l.combineParams(msg, params...))
+	l.logger.Warn(l.combineParams(msg, params...)...)
 }
 func (l *logger) Notice(msg string, params ...interface{}) {
-	l.logger.Info(l.combineParams(msg, params...))
+	l.logger.Info(l.combineParams(msg, params...)...)
 }
 func (l *logger) Info(msg string, params ...interface{}) {
-	l.logger.Info(l.combineParams(msg, params...))
+	l.logger.Info(l.combineParams(msg, params...)...)
 }
 func (l *logger) Debug(msg string, params ...interface{}) {
-	l.logger.Debug(l.combineParams(msg, params...))
+	l.logger.Debug(l.combineParams(msg, params...)...)
 }
 
 func getPrefixWithSpace(prefix string) string {
