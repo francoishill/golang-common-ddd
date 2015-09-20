@@ -24,5 +24,6 @@ func New(filePathToWatch string, handlers handlers) ReloadableSettings {
 		reloadEventNotifyLock: &sync.RWMutex{},
 	}
 	s.watchConfig()
+	handlers.ValidateAndUseFile(filePathToWatch)
 	return s
 }
