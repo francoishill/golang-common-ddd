@@ -6,5 +6,4 @@ import (
 
 type ErrorsService interface {
 	CreateClientError(statusCode int, statusText string) *ClientError
-	CreateClientError_Fmt(statusCode int, statusText string, statusTextArgs ...interface{}) *ClientError
 }
