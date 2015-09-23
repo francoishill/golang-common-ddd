@@ -78,12 +78,6 @@ func (s *service) getResponseBytesFromToken(token string) []byte {
 	return response
 }
 
-func (s *service) ensureHttpMethodIsPost(r *http.Request) {
-	if r.Method != "POST" {
-		panic(s.ErrorsService.CreateClientError(http.StatusBadRequest, "[1442936774]"))
-	}
-}
-
 func (s *service) getAndValidateJwtTokenFromRequest(r *http.Request) *jwt.Token {
 	token, err := jwt.ParseFromRequest(r, s.jwtKeyFuncGetBytes)
 
@@ -118,20 +112,28 @@ func (s *service) getAndValidateJwtTokenFromRequest(r *http.Request) *jwt.Token 
 	}
 }
 
-func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	s.ensureHttpMethodIsPost(r)
+func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user AuthUser) {
+	token := s.generateToken(user)
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(s.getResponseBytesFromToken(token))
+}
+
+func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	email, username, password := s.getRequestCredentials(r)
 	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894607] User does not exist"))
 	}
 
-	token := s.generateToken(usr)
+	s.finishHandlerByVerifyingUser(w, usr)
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(s.getResponseBytesFromToken(token))
+func (s *service) RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	email, username, password := s.getRequestCredentials(r)
+	usr := s.AuthUserHelperService.RegisterUser(email, username, password)
+	s.finishHandlerByVerifyingUser(w, usr)
 }
 
 func (s *service) getTokenExpiry(token *jwt.Token) time.Time {

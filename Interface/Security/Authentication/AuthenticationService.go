@@ -6,6 +6,7 @@ import (
 
 type AuthenticationService interface {
 	LoginHandler(w http.ResponseWriter, r *http.Request)
+	RegisterHandler(w http.ResponseWriter, r *http.Request)
 	LogoutHandler(w http.ResponseWriter, r *http.Request)
 	AuthenticateUserFromRequest(r *http.Request) AuthUser
 

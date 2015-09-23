@@ -20,44 +20,59 @@ const (
 	cCONTEXT_USER_KEY = "auth-user-basic"
 )
 
-func (s *service) getBasicAuthCredentials(r *http.Request) (successfullyExtractedDetails bool, username, password string) {
+func (s *service) getBasicAuthCredentials(r *http.Request) (email, username, password string) {
 	authorizationArray := r.Header["Authorization"]
 	if len(authorizationArray) == 0 {
-		return false, "", ""
+		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 1"))
 	}
 
 	authorization := strings.TrimSpace(authorizationArray[0])
 	credentials := strings.Split(authorization, " ")
 
 	if len(credentials) != 2 || !strings.EqualFold(credentials[0], "Basic") {
-		return false, "", ""
+		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 2"))
 	}
 
 	authstr, err := base64.StdEncoding.DecodeString(credentials[1])
 	if err != nil {
-		return false, "", ""
+		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 3"))
 	}
 
 	usernameAndPassword := strings.Split(string(authstr), ":")
 	if len(usernameAndPassword) != 2 {
-		return false, "", ""
+		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 4"))
 	}
 
-	return true, usernameAndPassword[0], usernameAndPassword[1]
+	email = usernameAndPassword[0]
+	username = usernameAndPassword[0]
+	password = usernameAndPassword[1]
+	return
+}
+
+func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user AuthUser) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	successfullyExtractedDetails, email, password := s.getBasicAuthCredentials(r)
-	if !successfullyExtractedDetails {
-		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442934154] Unable to extract credentials"))
-	}
+	email, username, password := s.getBasicAuthCredentials(r)
 
-	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, email, password)
+	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442934196] User does not exist"))
 	}
 
-	w.WriteHeader(http.StatusOK)
+	s.finishHandlerByVerifyingUser(w, usr)
+}
+
+func (s *service) RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	email, username, password := s.getBasicAuthCredentials(r)
+
+	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
+	if usr == nil {
+		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442934196] User does not exist"))
+	}
+
+	s.finishHandlerByVerifyingUser(w, usr)
 }
 
 func (s *service) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,12 +81,9 @@ func (s *service) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *service) AuthenticateUserFromRequest(r *http.Request) AuthUser {
-	successfullyExtractedDetails, email, password := s.getBasicAuthCredentials(r)
-	if !successfullyExtractedDetails {
-		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894605] Unable to extract credentials"))
-	}
+	email, username, password := s.getBasicAuthCredentials(r)
 
-	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, email, password)
+	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894606] User does not exist"))
 	}
