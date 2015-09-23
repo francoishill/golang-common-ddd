@@ -95,7 +95,7 @@ func (s *service) SaveUserInRequest(r *http.Request, user AuthUser) {
 	s.HttpRequestHelperService.SaveToRequestContext(r, cCONTEXT_USER_KEY, user)
 }
 
-func (s *service) GetUserFromRequest(r *http.Request) AuthUser {
+func (s *service) GetBaseUserFromRequest(r *http.Request) AuthUser {
 	usr, ok := s.HttpRequestHelperService.LoadFromRequestContext(r, cCONTEXT_USER_KEY)
 	if !ok {
 		panic(s.ErrorsService.CreateClientError(http.StatusInternalServerError, "[1442936125] Context does not contain user"))

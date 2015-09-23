@@ -97,6 +97,7 @@ func (s *service) getAndValidateJwtTokenFromRequest(r *http.Request) *jwt.Token 
 			panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894613] Invalid token"))
 		}
 
+		//TODO: We are checking this IsInLoggedOutList even when called from the `LogoutHandler`
 		if !token.Valid || s.JwtHelperService.IsInLoggedOutList(token.Raw) {
 			panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894611] Invalid token"))
 		}
@@ -165,7 +166,7 @@ func (s *service) SaveUserInRequest(r *http.Request, user AuthUser) {
 	s.HttpRequestHelperService.SaveToRequestContext(r, cCONTEXT_USER_KEY, user)
 }
 
-func (s *service) GetUserFromRequest(r *http.Request) AuthUser {
+func (s *service) GetBaseUserFromRequest(r *http.Request) AuthUser {
 	usr, ok := s.HttpRequestHelperService.LoadFromRequestContext(r, cCONTEXT_USER_KEY)
 	if !ok {
 		panic(s.ErrorsService.CreateClientError(http.StatusInternalServerError, "[1442936126] Context does not contain user"))

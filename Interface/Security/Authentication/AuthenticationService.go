@@ -11,5 +11,5 @@ type AuthenticationService interface {
 	AuthenticateUserFromRequest(r *http.Request) AuthUser
 
 	SaveUserInRequest(r *http.Request, user AuthUser)
-	GetUserFromRequest(r *http.Request) AuthUser
+	GetBaseUserFromRequest(r *http.Request) AuthUser
 }
