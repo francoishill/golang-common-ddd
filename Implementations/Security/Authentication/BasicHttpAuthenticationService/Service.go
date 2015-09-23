@@ -1,4 +1,4 @@
-package BasicHttpAuthenticationService
+package BasicHttpBaseAuthenticationService
 
 import (
 	"encoding/base64"
@@ -13,7 +13,7 @@ import (
 type service struct {
 	ErrorsService
 	HttpRequestHelperService
-	AuthUserHelperService
+	BaseAuthUserHelperService
 }
 
 const (
@@ -49,14 +49,14 @@ func (s *service) getBasicAuthCredentials(r *http.Request) (email, username, pas
 	return
 }
 
-func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user AuthUser) {
+func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user BaseUser) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (s *service) BaseLoginHandler(w http.ResponseWriter, r *http.Request) {
 	email, username, password := s.getBasicAuthCredentials(r)
 
-	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
+	usr := s.BaseAuthUserHelperService.BaseVerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442934196] User does not exist"))
 	}
@@ -64,10 +64,10 @@ func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	s.finishHandlerByVerifyingUser(w, usr)
 }
 
-func (s *service) RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (s *service) BaseRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	email, username, password := s.getBasicAuthCredentials(r)
 
-	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
+	usr := s.BaseAuthUserHelperService.BaseVerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442934196] User does not exist"))
 	}
@@ -75,15 +75,15 @@ func (s *service) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	s.finishHandlerByVerifyingUser(w, usr)
 }
 
-func (s *service) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (s *service) BaseLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	//We do nothing currently need to clear anything, we have not saved it to cookies
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *service) AuthenticateUserFromRequest(r *http.Request) AuthUser {
+func (s *service) BaseAuthenticateUserFromRequest(r *http.Request) BaseUser {
 	email, username, password := s.getBasicAuthCredentials(r)
 
-	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
+	usr := s.BaseAuthUserHelperService.BaseVerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894606] User does not exist"))
 	}
@@ -91,27 +91,27 @@ func (s *service) AuthenticateUserFromRequest(r *http.Request) AuthUser {
 	return usr
 }
 
-func (s *service) SaveUserInRequest(r *http.Request, user AuthUser) {
+func (s *service) BaseSaveUserInRequest(r *http.Request, user BaseUser) {
 	s.HttpRequestHelperService.SaveToRequestContext(r, cCONTEXT_USER_KEY, user)
 }
 
-func (s *service) GetBaseUserFromRequest(r *http.Request) AuthUser {
+func (s *service) BaseGetUserFromRequest(r *http.Request) BaseUser {
 	usr, ok := s.HttpRequestHelperService.LoadFromRequestContext(r, cCONTEXT_USER_KEY)
 	if !ok {
 		panic(s.ErrorsService.CreateClientError(http.StatusInternalServerError, "[1442936125] Context does not contain user"))
 	}
 
-	if authUsr, ok := usr.(AuthUser); !ok {
+	if authUsr, ok := usr.(BaseUser); !ok {
 		panic(s.ErrorsService.CreateClientError(http.StatusInternalServerError, "[1442892567] Invalid user value"))
 	} else {
 		return authUsr
 	}
 }
 
-func New(errorsService ErrorsService, httpRequestHelperService HttpRequestHelperService, authUserHelperService AuthUserHelperService) AuthenticationService {
+func New(errorsService ErrorsService, httpRequestHelperService HttpRequestHelperService, baseAuthUserHelperService BaseAuthUserHelperService) BaseAuthenticationService {
 	return &service{
 		errorsService,
 		httpRequestHelperService,
-		authUserHelperService,
+		baseAuthUserHelperService,
 	}
 }

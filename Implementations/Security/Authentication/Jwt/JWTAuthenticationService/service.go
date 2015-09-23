@@ -24,14 +24,14 @@ type service struct {
 	HttpRequestHelperService
 	JwtHelperService
 
-	AuthUserHelperService
+	BaseAuthUserHelperService
 }
 
 const (
 	cCONTEXT_USER_KEY = "auth-user-jwt"
 )
 
-type authUser struct {
+type baseUser struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -46,7 +46,7 @@ func (s *service) jwtKeyFuncGetBytes(tok *jwt.Token) (interface{}, error) {
 }
 
 func (s *service) getRequestCredentials(r *http.Request) (email, username, password string) {
-	tmpUser := new(authUser)
+	tmpUser := new(baseUser)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&tmpUser)
 	if err != nil {
@@ -55,7 +55,7 @@ func (s *service) getRequestCredentials(r *http.Request) (email, username, passw
 	return tmpUser.Email, tmpUser.Username, tmpUser.Password
 }
 
-func (s *service) generateToken(user AuthUser) string {
+func (s *service) generateToken(user BaseUser) string {
 	//This signing method must be the one that we validate below by calling `if _, ok := token.Method.(*jwt.SigningMethod`
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
 	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(s.jwtExpirationDeltaHours)).Unix()
@@ -97,7 +97,7 @@ func (s *service) getAndValidateJwtTokenFromRequest(r *http.Request) *jwt.Token 
 			panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894613] Invalid token"))
 		}
 
-		//TODO: We are checking this IsInLoggedOutList even when called from the `LogoutHandler`
+		//TODO: We are checking this IsInLoggedOutList even when called from the `BaseLogoutHandler`
 		if !token.Valid || s.JwtHelperService.IsInLoggedOutList(token.Raw) {
 			panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894611] Invalid token"))
 		}
@@ -113,7 +113,7 @@ func (s *service) getAndValidateJwtTokenFromRequest(r *http.Request) *jwt.Token 
 	}
 }
 
-func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user AuthUser) {
+func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user BaseUser) {
 	token := s.generateToken(user)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -121,9 +121,9 @@ func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user AuthU
 	w.Write(s.getResponseBytesFromToken(token))
 }
 
-func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (s *service) BaseLoginHandler(w http.ResponseWriter, r *http.Request) {
 	email, username, password := s.getRequestCredentials(r)
-	usr := s.AuthUserHelperService.VerifyAndGetUserFromCredentials(email, username, password)
+	usr := s.BaseAuthUserHelperService.BaseVerifyAndGetUserFromCredentials(email, username, password)
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894607] User does not exist"))
 	}
@@ -131,9 +131,9 @@ func (s *service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	s.finishHandlerByVerifyingUser(w, usr)
 }
 
-func (s *service) RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (s *service) BaseRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	email, username, password := s.getRequestCredentials(r)
-	usr := s.AuthUserHelperService.RegisterUser(email, username, password)
+	usr := s.BaseAuthUserHelperService.BaseRegisterUser(email, username, password)
 	s.finishHandlerByVerifyingUser(w, usr)
 }
 
@@ -146,15 +146,15 @@ func (s *service) getTokenExpiry(token *jwt.Token) time.Time {
 	}
 }
 
-func (s *service) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (s *service) BaseLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	token := s.getAndValidateJwtTokenFromRequest(r)
 	s.JwtHelperService.AddTokenToLoggedOutList(token.Raw, s.getTokenExpiry(token))
 }
 
-func (s *service) AuthenticateUserFromRequest(r *http.Request) AuthUser {
+func (s *service) BaseAuthenticateUserFromRequest(r *http.Request) BaseUser {
 	token := s.getAndValidateJwtTokenFromRequest(r)
 
-	usr := s.AuthUserHelperService.GetUserWithUUID(token.Claims["sub"])
+	usr := s.BaseAuthUserHelperService.BaseGetUserWithUUID(token.Claims["sub"])
 	if usr == nil {
 		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "[1442894608] User does not exist"))
 	}
@@ -162,24 +162,24 @@ func (s *service) AuthenticateUserFromRequest(r *http.Request) AuthUser {
 	return usr
 }
 
-func (s *service) SaveUserInRequest(r *http.Request, user AuthUser) {
+func (s *service) BaseSaveUserInRequest(r *http.Request, user BaseUser) {
 	s.HttpRequestHelperService.SaveToRequestContext(r, cCONTEXT_USER_KEY, user)
 }
 
-func (s *service) GetBaseUserFromRequest(r *http.Request) AuthUser {
+func (s *service) BaseGetUserFromRequest(r *http.Request) BaseUser {
 	usr, ok := s.HttpRequestHelperService.LoadFromRequestContext(r, cCONTEXT_USER_KEY)
 	if !ok {
 		panic(s.ErrorsService.CreateClientError(http.StatusInternalServerError, "[1442936126] Context does not contain user"))
 	}
 
-	if authUsr, ok := usr.(AuthUser); !ok {
+	if authUsr, ok := usr.(BaseUser); !ok {
 		panic(s.ErrorsService.CreateClientError(http.StatusInternalServerError, "[1442892581] Invalid user value"))
 	} else {
 		return authUsr
 	}
 }
 
-func New(logger Logger, privateKeyBytes, publicKeyBytes []byte, jwtExpirationDeltaHours int, errorsService ErrorsService, httpRequestHelperService HttpRequestHelperService, jwtHelperService JwtHelperService, authUserHelperService AuthUserHelperService) AuthenticationService {
+func New(logger Logger, privateKeyBytes, publicKeyBytes []byte, jwtExpirationDeltaHours int, errorsService ErrorsService, httpRequestHelperService HttpRequestHelperService, jwtHelperService JwtHelperService, baseAuthUserHelperService BaseAuthUserHelperService) BaseAuthenticationService {
 	return &service{
 		logger,
 		privateKeyBytes,
@@ -188,6 +188,6 @@ func New(logger Logger, privateKeyBytes, publicKeyBytes []byte, jwtExpirationDel
 		errorsService,
 		httpRequestHelperService,
 		jwtHelperService,
-		authUserHelperService,
+		baseAuthUserHelperService,
 	}
 }

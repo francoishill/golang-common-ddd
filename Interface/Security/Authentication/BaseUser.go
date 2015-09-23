@@ -1,5 +1,5 @@
 package Authentication
 
-type AuthUser interface {
+type BaseUser interface {
 	UUID() interface{}
 }

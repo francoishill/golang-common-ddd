@@ -7,15 +7,15 @@ import (
 )
 
 type service struct {
-	AuthenticationService
+	BaseAuthenticationService
 }
 
 func (s *service) CheckAuthentication(w http.ResponseWriter, r *http.Request) {
-	usr := s.AuthenticationService.AuthenticateUserFromRequest(r)
-	s.AuthenticationService.SaveUserInRequest(r, usr)
+	usr := s.BaseAuthenticationService.BaseAuthenticateUserFromRequest(r)
+	s.BaseAuthenticationService.BaseSaveUserInRequest(r, usr)
 }
 
-func New(authService AuthenticationService) AuthenticationMiddleware {
+func New(authService BaseAuthenticationService) AuthenticationMiddleware {
 	return &service{
 		authService,
 	}
