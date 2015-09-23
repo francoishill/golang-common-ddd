@@ -1,6 +1,7 @@
 package DefaultHttpRequestHelperService
 
 import (
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -41,6 +42,14 @@ func (s *service) GetRequiredUrlParamValue_String(r *http.Request, paramName str
 
 func (s *service) GetRequiredUrlParamValue_Int64(r *http.Request, paramName string) int64 {
 	return parseInt64(s.GetRequiredUrlParamValue_String(r, paramName))
+}
+
+func (s *service) SaveToRequestContext(r *http.Request, key, val interface{}) {
+	context.Set(r, key, val)
+}
+
+func (s *service) LoadFromRequestContext(r *http.Request, key interface{}) (interface{}, bool) {
+	return context.GetOk(r, key)
 }
 
 func New() HttpRequestHelperService {

@@ -1,6 +1,10 @@
 package Errors
 
+import (
+	. "github.com/francoishill/golang-common-ddd/Interface/Misc/Errors/ClientError"
+)
+
 type ErrorsService interface {
-	PanicClientErrorLocal(e interface{})
-	PanicClientErrorLocal_FormattedString(format string, args ...interface{})
+	CreateClientError(statusCode int, statusText string) *ClientError
+	CreateClientError_Fmt(statusCode int, statusText string, statusTextArgs ...interface{}) *ClientError
 }

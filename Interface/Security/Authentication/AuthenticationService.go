@@ -5,6 +5,10 @@ import (
 )
 
 type AuthenticationService interface {
-	AuthenticateUserFromRequest(r *http.Request) bool
-	GetStoredUserOfRequest(r *http.Request) interface{}
+	LoginHandler(w http.ResponseWriter, r *http.Request)
+	LogoutHandler(w http.ResponseWriter, r *http.Request)
+	AuthenticateUserFromRequest(r *http.Request) AuthUser
+
+	SaveUserInRequest(r *http.Request, user AuthUser)
+	GetUserFromRequest(r *http.Request) AuthUser
 }

@@ -2,23 +2,21 @@ package DefaultErrorsService
 
 import (
 	"fmt"
+
 	. "github.com/francoishill/golang-common-ddd/Interface/Misc/Errors"
+	. "github.com/francoishill/golang-common-ddd/Interface/Misc/Errors/ClientError"
 )
 
-type defaultErrorService struct{}
+type service struct{}
 
-type tmpClientError struct {
-	Error interface{}
+func (s *service) CreateClientError(statusCode int, statusText string) *ClientError {
+	return &ClientError{statusCode, statusText}
 }
 
-func (d *defaultErrorService) PanicClientErrorLocal(e interface{}) {
-	panic(&tmpClientError{e})
-}
-
-func (d *defaultErrorService) PanicClientErrorLocal_FormattedString(format string, args ...interface{}) {
-	d.PanicClientErrorLocal(fmt.Errorf(format, args...))
+func (s *service) CreateClientError_Fmt(statusCode int, statusText string, statusTextArgs ...interface{}) *ClientError {
+	return s.CreateClientError(statusCode, fmt.Sprintf(statusText, statusTextArgs...))
 }
 
 func New() ErrorsService {
-	return &defaultErrorService{}
+	return &service{}
 }
