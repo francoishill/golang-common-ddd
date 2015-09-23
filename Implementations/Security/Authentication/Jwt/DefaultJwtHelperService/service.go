@@ -27,9 +27,9 @@ func (s *service) AddTokenToLoggedOutList(token string, tokenExpiry time.Time) {
 
 	var valueExpiryDuration time.Duration
 	if diff > 0 {
-		valueExpiryDuration = time.Duration(diff.Seconds() + float64(cEXPIRE_OFFSET_SECONDS))
+		valueExpiryDuration = time.Duration(diff.Seconds()+float64(cEXPIRE_OFFSET_SECONDS)) * time.Second
 	} else {
-		valueExpiryDuration = time.Duration(cEXPIRE_OFFSET_SECONDS)
+		valueExpiryDuration = cEXPIRE_OFFSET_SECONDS * time.Second
 	}
 
 	fullKeyName := KEYVAL_TOKEN_PREFIX + token
