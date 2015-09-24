@@ -1,6 +1,8 @@
 package DefaultHttpRequestHelperService
 
 import (
+	"encoding/json"
+	. "github.com/francoishill/golang-web-dry/errors/checkerror"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -42,6 +44,12 @@ func (s *service) GetRequiredUrlParamValue_String(r *http.Request, paramName str
 
 func (s *service) GetRequiredUrlParamValue_Int64(r *http.Request, paramName string) int64 {
 	return parseInt64(s.GetRequiredUrlParamValue_String(r, paramName))
+}
+
+func (s *service) DecodeJsonRequest(r *http.Request, destination interface{}) {
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(destination)
+	CheckError(err)
 }
 
 func (s *service) SaveToRequestContext(r *http.Request, key, val interface{}) {
