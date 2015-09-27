@@ -50,7 +50,11 @@ func (s *service) getRequestCredentials(r *http.Request) (email, username, passw
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&tmpUser)
 	if err != nil {
-		panic(s.ErrorsService.CreateClientError(http.StatusBadRequest, "[1442894150] Cannot find credentials"))
+		if un, pw, ok := r.BasicAuth(); !ok {
+			panic(s.ErrorsService.CreateHttpStatusClientError_Unauthorized("Could not find credentials in request header or body"))
+		} else {
+			return un, un, pw
+		}
 	}
 	return tmpUser.Email, tmpUser.Username, tmpUser.Password
 }

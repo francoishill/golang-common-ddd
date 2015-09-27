@@ -1,9 +1,7 @@
 package BasicHttpBaseAuthenticationService
 
 import (
-	"encoding/base64"
 	"net/http"
-	"strings"
 
 	. "github.com/francoishill/golang-common-ddd/Interface/Misc/Errors"
 	. "github.com/francoishill/golang-common-ddd/Interface/Misc/HttpRequestHelper"
@@ -21,32 +19,11 @@ const (
 )
 
 func (s *service) getBasicAuthCredentials(r *http.Request) (email, username, password string) {
-	authorizationArray := r.Header["Authorization"]
-	if len(authorizationArray) == 0 {
-		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 1"))
+	if un, pw, ok := r.BasicAuth(); !ok {
+		panic(s.ErrorsService.CreateHttpStatusClientError_Unauthorized("Unable to extract basic auth credentials"))
+	} else {
+		return un, un, pw
 	}
-
-	authorization := strings.TrimSpace(authorizationArray[0])
-	credentials := strings.Split(authorization, " ")
-
-	if len(credentials) != 2 || !strings.EqualFold(credentials[0], "Basic") {
-		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 2"))
-	}
-
-	authstr, err := base64.StdEncoding.DecodeString(credentials[1])
-	if err != nil {
-		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 3"))
-	}
-
-	usernameAndPassword := strings.Split(string(authstr), ":")
-	if len(usernameAndPassword) != 2 {
-		panic(s.ErrorsService.CreateClientError(http.StatusUnauthorized, "Unable to extract credentials 4"))
-	}
-
-	email = usernameAndPassword[0]
-	username = usernameAndPassword[0]
-	password = usernameAndPassword[1]
-	return
 }
 
 func (s *service) finishHandlerByVerifyingUser(w http.ResponseWriter, user BaseUser) {
