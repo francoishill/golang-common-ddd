@@ -1,6 +1,9 @@
 # golang-common-ddd
 Common interfaces (and implementations) for usage in Domain Driven Design (DDD) with golang web API's.
 
+# Travis build
+[![Build Status](https://travis-ci.org/francoishill/golang-common-ddd.svg?branch=master)](https://travis-ci.org/francoishill/golang-common-ddd)
+
 ## Roadmap
 - ~~Add basic `EncryptionService`~~
 - ~~Add basic `ErrorsService`~~
