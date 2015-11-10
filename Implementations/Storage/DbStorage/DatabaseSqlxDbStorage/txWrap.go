@@ -11,26 +11,26 @@ type txWrap struct {
 }
 
 func (t *txWrap) Select(dest interface{}, query string, args ...interface{}) error {
-	return t.Select(dest, query, args...)
+	return t.tx.Select(dest, query, args...)
 }
 func (t *txWrap) Get(dest interface{}, query string, args ...interface{}) error {
-	return t.Get(dest, query, args...)
+	return t.tx.Get(dest, query, args...)
 }
 func (t *txWrap) Query(query string, args ...interface{}) (DbStorageScannableResultMultipleRows, error) {
-	return t.Query(query, args...)
+	return t.tx.Queryx(query, args...)
 }
 func (t *txWrap) QueryRow(query string, args ...interface{}) DbStorageScannableResultSingleRow {
-	return t.QueryRow(query, args...)
+	return t.tx.QueryRowx(query, args...)
 }
 func (t *txWrap) Exec(query string, args ...interface{}) (DbStorageExecResult, error) {
-	return t.Exec(query, args...)
+	return t.tx.Exec(query, args...)
 }
 func (t *txWrap) MustExec(query string, args ...interface{}) DbStorageExecResult {
-	return t.MustExec(query, args...)
+	return t.tx.MustExec(query, args...)
 }
 func (t *txWrap) Commit() error {
-	return t.Commit()
+	return t.tx.Commit()
 }
 func (t *txWrap) Rollback() error {
-	return t.Rollback()
+	return t.tx.Rollback()
 }
