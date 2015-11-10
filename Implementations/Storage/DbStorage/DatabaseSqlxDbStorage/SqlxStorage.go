@@ -25,10 +25,11 @@ func (s *storage) Migrate() (numMigrationsApplied int) {
 }
 
 func (s *storage) BeginTransaction() (DbStorageTransaction, error) {
-	return s.db.Beginx()
+	tx, err := s.db.Beginx()
+	return &txWrap{tx}, err
 }
 func (s *storage) MustBeginTransaction() DbStorageTransaction {
-	return s.db.MustBegin()
+	return &txWrap{s.db.MustBegin()}
 }
 
 func (s *storage) Select(dest interface{}, query string, args ...interface{}) error {
