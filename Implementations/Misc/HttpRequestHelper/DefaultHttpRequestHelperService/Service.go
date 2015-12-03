@@ -21,6 +21,14 @@ func parseInt64(s string) int64 {
 	return intVal
 }
 
+func parseFloat64(s string) float64 {
+	floatVal, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		panic(err)
+	}
+	return floatVal
+}
+
 func (s *service) GetRequiredUrlQueryValue_String(r *http.Request, keyName string) string {
 	val := r.URL.Query().Get(keyName)
 	if val == "" {
@@ -31,6 +39,10 @@ func (s *service) GetRequiredUrlQueryValue_String(r *http.Request, keyName strin
 
 func (s *service) GetRequiredUrlQueryValue_Int64(r *http.Request, keyName string) int64 {
 	return parseInt64(s.GetRequiredUrlQueryValue_String(r, keyName))
+}
+
+func (s *service) GetRequiredUrlQueryValue_Float64(r *http.Request, keyName string) float64 {
+	return parseFloat64(s.GetRequiredUrlQueryValue_String(r, keyName))
 }
 
 func (s *service) GetRequiredUrlParamValue_String(r *http.Request, paramName string) string {
@@ -44,6 +56,10 @@ func (s *service) GetRequiredUrlParamValue_String(r *http.Request, paramName str
 
 func (s *service) GetRequiredUrlParamValue_Int64(r *http.Request, paramName string) int64 {
 	return parseInt64(s.GetRequiredUrlParamValue_String(r, paramName))
+}
+
+func (s *service) GetRequiredUrlParamValue_Float64(r *http.Request, paramName string) float64 {
+	return parseFloat64(s.GetRequiredUrlParamValue_String(r, paramName))
 }
 
 func (s *service) DecodeJsonRequest(r *http.Request, destination interface{}) {
