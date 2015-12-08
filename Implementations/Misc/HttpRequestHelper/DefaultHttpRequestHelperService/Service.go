@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+	"strings"
 
 	. "github.com/francoishill/golang-common-ddd/Interface/Misc/HttpRequestHelper"
 )
@@ -29,37 +30,33 @@ func parseFloat64(s string) float64 {
 	return floatVal
 }
 
-func (s *service) GetRequiredUrlQueryValue_String(r *http.Request, keyName string) string {
-	val := r.URL.Query().Get(keyName)
-	if val == "" {
-		panic(keyName + " cannot be found from URL")
+func (s *service) OptionalQueryValue(r *http.Request, keyName string) RequestValue {
+	val := strings.TrimSpace(r.URL.Query().Get(keyName))
+	return NewRequestValue(val != "", RequestValue_Query, val)
+}
+func (s *service) MustQueryValue(r *http.Request, keyName string) RequestValue {
+	val := s.OptionalQueryValue(r, keyName)
+	if !val.HasValue() {
+		panic(keyName + " cannot be found from URL query values")
 	}
 	return val
 }
 
-func (s *service) GetRequiredUrlQueryValue_Int64(r *http.Request, keyName string) int64 {
-	return parseInt64(s.GetRequiredUrlQueryValue_String(r, keyName))
-}
-
-func (s *service) GetRequiredUrlQueryValue_Float64(r *http.Request, keyName string) float64 {
-	return parseFloat64(s.GetRequiredUrlQueryValue_String(r, keyName))
-}
-
-func (s *service) GetRequiredUrlParamValue_String(r *http.Request, paramName string) string {
+func (s *service) OptionalUrlParamValue(r *http.Request, paramName string) RequestValue {
 	vars := mux.Vars(r)
 	paramValue, varFound := vars[paramName]
 	if !varFound {
-		panic(paramName + " cannot be found from URL")
+		return NewRequestValue(false, RequestValue_Param, "")
+	}
+	trimmedVal := strings.TrimSpace(paramValue)
+	return NewRequestValue(trimmedVal != "", RequestValue_Param, trimmedVal)
+}
+func (s *service) MustUrlParamValue(r *http.Request, paramName string) RequestValue {
+	paramValue := s.OptionalUrlParamValue(r, paramName)
+	if !paramValue.HasValue() {
+		panic(paramName + " cannot be found from URL route params")
 	}
 	return paramValue
-}
-
-func (s *service) GetRequiredUrlParamValue_Int64(r *http.Request, paramName string) int64 {
-	return parseInt64(s.GetRequiredUrlParamValue_String(r, paramName))
-}
-
-func (s *service) GetRequiredUrlParamValue_Float64(r *http.Request, paramName string) float64 {
-	return parseFloat64(s.GetRequiredUrlParamValue_String(r, paramName))
 }
 
 func (s *service) DecodeJsonRequest(r *http.Request, destination interface{}) {

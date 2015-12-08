@@ -5,13 +5,11 @@ import (
 )
 
 type HttpRequestHelperService interface {
-	GetRequiredUrlQueryValue_String(r *http.Request, keyName string) string
-	GetRequiredUrlQueryValue_Int64(r *http.Request, keyName string) int64
-	GetRequiredUrlQueryValue_Float64(r *http.Request, keyName string) float64
+	OptionalQueryValue(r *http.Request, keyName string) RequestValue
+	MustQueryValue(r *http.Request, keyName string) RequestValue
 
-	GetRequiredUrlParamValue_String(r *http.Request, paramName string) string
-	GetRequiredUrlParamValue_Int64(r *http.Request, paramName string) int64
-	GetRequiredUrlParamValue_Float64(r *http.Request, paramName string) float64
+	OptionalUrlParamValue(r *http.Request, paramName string) RequestValue
+	MustUrlParamValue(r *http.Request, paramName string) RequestValue
 
 	DecodeJsonRequest(r *http.Request, destination interface{})
 
