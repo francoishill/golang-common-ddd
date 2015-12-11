@@ -7,6 +7,7 @@ import (
 	"github.com/ian-kent/go-log/levels"
 	golog "github.com/ian-kent/go-log/log"
 	gologger "github.com/ian-kent/go-log/logger"
+	"strings"
 	"time"
 
 	. "github.com/francoishill/golang-common-ddd/Interface/Logger"
@@ -28,9 +29,14 @@ func (l *logger) formatNowTime() string {
 	return fmt.Sprintf("%s %s%d", now.Local().Format("2006-01-02 15:04:05"), timezoneSign, offset/(60*60))
 }
 
+func (l *logger) escapeNewlinesChars(s string) string {
+	r := strings.NewReplacer("\r", "", "\n", "\\n")
+	return r.Replace(s)
+}
+
 func (l *logger) combineParams(msg string, params ...interface{}) []interface{} {
 	combined := []interface{}{
-		fmt.Sprintf("{%s} %s", l.formatNowTime(), msg),
+		fmt.Sprintf("{%s} %s", l.formatNowTime(), l.escapeNewlinesChars(msg)),
 	}
 	combined = append(combined, params...)
 	return combined
