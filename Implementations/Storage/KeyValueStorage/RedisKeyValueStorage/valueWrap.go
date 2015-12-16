@@ -11,9 +11,9 @@ type valwrap struct {
 	c *redis.StringCmd
 }
 
-func (v *valwrap) String() (string, error) { return v.c.String(), nil }
+func (v *valwrap) String() (string, error) { return v.c.Val(), nil }
 func (v *valwrap) MustString() string {
-	s := v.c.String()
+	s := v.c.Val()
 	return s
 }
 
